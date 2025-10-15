@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Edit } from 'lucide-react';
-import { Account, PaymentMode } from '../../types/account';
+import { Account } from '../../types/account';
 import AccountSelectModal from '../AccountSelectModal';
+import AccountDisplay from '../account/AccountDisplay';
+import PaymentModeSelector from '../account/PaymentModeSelector';
 
 interface FormAccountFieldProps {
   accounts: Account[];
@@ -54,53 +56,14 @@ function FormAccountField({
 
         {selectedAccount ? (
           <div className="space-y-2 sm:space-y-3">
-            <div className={`flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 ${backgroundColor} rounded-lg`}>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 text-sm sm:text-base font-medium">
-                  {selectedAccount.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm sm:text-base font-medium text-gray-900">{selectedAccount.name}</p>
-                <p className="text-xs sm:text-sm text-gray-500 capitalize">{selectedAccount.type}</p>
-              </div>
-            </div>
+            <AccountDisplay account={selectedAccount} />
 
             {showPaymentModes && selectedAccount.linkedPaymentModes && selectedAccount.linkedPaymentModes.length > 0 && (
-              <div>
-                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                  Payment Mode (Optional)
-                </label>
-                {selectedPaymentMode ? (
-                  <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-blue-50 rounded-lg">
-                    <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100">
-                      <span className="text-blue-600 text-xs sm:text-sm font-medium">PM</span>
-                    </div>
-                    <div>
-                      <p className="text-sm sm:text-base font-medium text-gray-900">{selectedPaymentMode.name}</p>
-                      <p className="text-xs sm:text-sm text-gray-500">{selectedPaymentMode.type}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {selectedAccount.linkedPaymentModes.map((paymentMode: PaymentMode) => (
-                      <button
-                        key={paymentMode.id}
-                        type="button"
-                        onClick={() => onPaymentModeSelect(paymentMode.id)}
-                        className={`p-2 sm:p-3 text-left border rounded-lg transition-colors ${
-                          selectedPaymentModeId === paymentMode.id
-                            ? 'border-indigo-500 bg-indigo-50'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">{paymentMode.name}</p>
-                        <p className="text-xs text-gray-500">{paymentMode.type}</p>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <PaymentModeSelector
+                paymentModes={selectedAccount.linkedPaymentModes}
+                selectedPaymentModeId={selectedPaymentModeId}
+                onSelect={onPaymentModeSelect}
+              />
             )}
           </div>
         ) : (

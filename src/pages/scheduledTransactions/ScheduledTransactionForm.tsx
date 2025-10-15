@@ -21,6 +21,9 @@ import AccountSelectModal from '../../components/AccountSelectModal';
 import FrequencyModal from '../../components/FrequencyModal';
 import EarlyReminderModal from '../../components/EarlyReminderModal';
 import CategoryIcon from '../../components/CategoryIcon';
+import AccountDisplay from '../../components/account/AccountDisplay';
+import PaymentModeSelector from '../../components/account/PaymentModeSelector';
+import TransferAccountSection from '../../components/account/TransferAccountSection';
 import FormHeader from '../../components/forms/FormHeader';
 import FormDateTimeFields from '../../components/forms/FormDateTimeFields';
 import FormAmountField from '../../components/forms/FormAmountField';
@@ -303,50 +306,14 @@ function ScheduledTransactionForm() {
 
             {selectedAccount ? (
               <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 text-sm sm:text-base font-medium">
-                      {selectedAccount.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm sm:text-base font-medium text-gray-900">{selectedAccount.name}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 capitalize">{selectedAccount.type}</p>
-                  </div>
-                </div>
+                <AccountDisplay account={selectedAccount} />
 
-                {/* Payment Mode for non-transfer transactions */}
                 {selectedAccount.linkedPaymentModes && selectedAccount.linkedPaymentModes.length > 0 && (
-                  <div>
-                    <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      Payment Mode (Optional)
-                    </label>
-                    {selectedPaymentMode ? (
-                      <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-blue-50 rounded-lg">
-                        <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100">
-                          <span className="text-blue-600 text-xs sm:text-sm font-medium">PM</span>
-                        </div>
-                        <div>
-                          <p className="text-sm sm:text-base font-medium text-gray-900">{selectedPaymentMode.name}</p>
-                          <p className="text-xs sm:text-sm text-gray-500">{selectedPaymentMode.type}</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {selectedAccount.linkedPaymentModes.map((paymentMode) => (
-                          <button
-                            key={paymentMode.id}
-                            type="button"
-                            onClick={() => setValue('paymentModeId', paymentMode.id)}
-                            className="p-2 text-left border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors"
-                          >
-                            <p className="text-xs sm:text-sm font-medium text-gray-900">{paymentMode.name}</p>
-                            <p className="text-xs text-gray-500">{paymentMode.type}</p>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <PaymentModeSelector
+                    paymentModes={selectedAccount.linkedPaymentModes}
+                    selectedPaymentModeId={watchedValues.paymentModeId}
+                    onSelect={(paymentModeId) => setValue('paymentModeId', paymentModeId)}
+                  />
                 )}
               </div>
             ) : (
@@ -360,75 +327,23 @@ function ScheduledTransactionForm() {
         {/* Transfer Accounts */}
         {activeTab === 2 && (
           <div className="space-y-4 sm:space-y-6">
-            {/* From Account */}
-            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <label className="block text-sm sm:text-base font-medium text-gray-700">
-                  From Account
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsFromAccountModalOpen(true)}
-                  className="text-indigo-600 hover:text-indigo-700 text-xs sm:text-sm flex items-center"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  Change
-                </button>
-              </div>
+            <TransferAccountSection
+              type="from"
+              account={selectedFromAccount}
+              selectedPaymentModeId={watchedValues.fromPaymentModeId}
+              onAccountChange={() => setIsFromAccountModalOpen(true)}
+              onPaymentModeSelect={(paymentModeId) => setValue('fromPaymentModeId', paymentModeId)}
+              showPaymentModeGrid={false}
+            />
 
-              {selectedFromAccount ? (
-                <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-red-50 rounded-lg">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="text-red-600 text-sm sm:text-base font-medium">
-                      {selectedFromAccount.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm sm:text-base font-medium text-gray-900">{selectedFromAccount.name}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 capitalize">{selectedFromAccount.type}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-2 sm:p-3 bg-gray-50 rounded-lg text-xs sm:text-sm text-gray-500">
-                  No account selected
-                </div>
-              )}
-            </div>
-
-            {/* To Account */}
-            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <label className="block text-sm sm:text-base font-medium text-gray-700">
-                  To Account
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsToAccountModalOpen(true)}
-                  className="text-indigo-600 hover:text-indigo-700 text-xs sm:text-sm flex items-center"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  Change
-                </button>
-              </div>
-
-              {selectedToAccount ? (
-                <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-green-50 rounded-lg">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-sm sm:text-base font-medium">
-                      {selectedToAccount.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm sm:text-base font-medium text-gray-900">{selectedToAccount.name}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 capitalize">{selectedToAccount.type}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-2 sm:p-3 bg-gray-50 rounded-lg text-xs sm:text-sm text-gray-500">
-                  No account selected
-                </div>
-              )}
-            </div>
+            <TransferAccountSection
+              type="to"
+              account={selectedToAccount}
+              selectedPaymentModeId={watchedValues.toPaymentModeId}
+              onAccountChange={() => setIsToAccountModalOpen(true)}
+              onPaymentModeSelect={(paymentModeId) => setValue('toPaymentModeId', paymentModeId)}
+              showPaymentModeGrid={false}
+            />
           </div>
         )}
 
